@@ -1,0 +1,40 @@
+-- Создание базы данных с кодировкой UTF-8
+CREATE DATABASE chat_db
+WITH ENCODING 'UTF8'
+LC_COLLATE='ru_RU.UTF-8'
+LC_CTYPE='ru_RU.UTF-8'
+TEMPLATE template0;
+
+
+
+
+CREATE TABLE IF NOT EXISTS users (
+    login VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    sender VARCHAR(50) NOT NULL REFERENCES users(login) ON DELETE CASCADE ON UPDATE CASCADE,
+    recipient VARCHAR(50) NOT NULL,
+    text TEXT NOT NULL,
+    is_private BOOLEAN NOT NULL DEFAULT FALSE,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+INSERT INTO users (login, password, name) VALUES
+('admin', 'admin123', 'Администратор'),
+('alice', 'pass123', 'Алиса'),
+('bob', 'qwerty', 'Боб'),
+('charlie', 'charlie', 'Чарли')
+ON CONFLICT (login) DO UPDATE SET name = EXCLUDED.name;
+
+
+INSERT INTO messages (sender, recipient, text, is_private) VALUES
+('alice', 'all', 'Всем привет!', FALSE),
+('bob', 'alice', 'Привет, Алиса!', TRUE),
+('charlie', 'all', 'Как дела у всех?', FALSE),
+('admin', 'all', 'Сообщение от администратора', FALSE);
